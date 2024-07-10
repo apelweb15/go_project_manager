@@ -17,7 +17,7 @@ func main() {
 	moduleName = strings.TrimSpace(moduleName)
 
 	//// Meminta input alamat
-	fmt.Print("Instalation directory: ")
+	fmt.Print("Installation directory: ")
 	directory, _ := reader.ReadString('\n')
 	directory = strings.TrimSpace(directory)
 
