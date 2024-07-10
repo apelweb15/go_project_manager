@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"gitlab.com/apelweb/go_project_manager/internal"
+	"github.com/apelweb15/go_project_manager/internal"
 	"os"
 	"strings"
 )
