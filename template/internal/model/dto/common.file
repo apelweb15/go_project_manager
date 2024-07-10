@@ -1,0 +1,30 @@
+package dto
+
+import "fmt"
+
+type Request[T any] struct {
+	RequestHeader interface{}
+	RequestBody   T
+}
+
+type Response[T any] struct {
+	ResponseCode    int    `json:"responseCode"`
+	ResponseMessage string `json:"responseMessage"`
+	Data            T      `json:"data"`
+}
+
+type ErrorResponse struct {
+	ResponseCode    int    `json:"responseCode"`
+	ResponseMessage string `json:"responseMessage"`
+}
+
+func (e ErrorResponse) Error() string {
+	return fmt.Sprintf("Error: %s - %s", e.ResponseMessage, e.ResponseMessage)
+}
+
+func NewError(responseCode int, responseMessage string) error {
+	return &ErrorResponse{
+		ResponseCode:    responseCode,
+		ResponseMessage: responseMessage,
+	}
+}

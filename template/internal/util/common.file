@@ -1,0 +1,28 @@
+package util
+
+import (
+	"context"
+	"github.com/google/uuid"
+	"__module_name__/internal/constants"
+	"strings"
+)
+
+func GetContextSessionID(ctx context.Context) string {
+	return ForceEmptyString(ctx.Value(constants.ContextSessionID))
+}
+
+func ForceEmptyString(data interface{}, defaultValue ...string) string {
+	result := ""
+	if data != nil {
+		result = data.(string)
+	}
+	if result == "" && len(defaultValue) > 0 {
+		result = defaultValue[0]
+	}
+	return result
+}
+
+func UniqID() string {
+	randomUUID := uuid.New()
+	return strings.Replace(randomUUID.String(), "-", "", -1)
+}

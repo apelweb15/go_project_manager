@@ -1,0 +1,16 @@
+{
+  "app": {
+    "name": "golang-app-template",
+    "port": "3000"
+  },
+  "log": {
+    "prefixFileName": "go_log"
+  },
+  "database": {
+    "username": "",
+    "password": "",
+    "host": "",
+    "port": 3306,
+    "name": ""
+  }
+}

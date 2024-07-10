@@ -1,0 +1,12 @@
+package repository
+
+import (
+	"database/sql"
+	"__module_name__/internal/entity"
+)
+
+type SampleRepository interface {
+	GetByID(id int) (*entity.Entity, error)
+	Create(tx *sql.Tx, entity *entity.Entity) (*entity.Entity, error)
+	BeginTransaction() (*sql.Tx, error)
+}

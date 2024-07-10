@@ -1,0 +1,10 @@
+package usecase
+
+import (
+	"__module_name__/internal/model/dto"
+)
+
+type SampleUseCase interface {
+    Create(request *dto.SampleRequest) (*dto.SampleResponse, error)
+	GetById(userId int) (*dto.SampleResponse, error)
+}

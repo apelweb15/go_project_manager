@@ -1,0 +1,50 @@
+package repository
+
+import (
+	"database/sql"
+	"__module_name__/internal/entity"
+)
+
+type sampleRepositoryImpl struct {
+	db        *sql.DB
+	tableName string
+}
+
+func (a sampleRepositoryImpl) BeginTransaction() (*sql.Tx, error) {
+	return a.db.Begin()
+}
+
+func (a sampleRepositoryImpl) GetByID(id int) (*entity.Entity, error) {
+	result := &entity.Entity{}
+	err := a.db.
+		QueryRow("SELECT id, column1 FROM table WHERE id = ?", id).
+		Scan(&result.ID)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (a sampleRepositoryImpl) Create(tx *sql.Tx, entity *entity.Entity) (*entity.Entity, error) {
+	result, err := tx.Exec("INSERT INTO table "+
+		"("+
+		"column1"+
+		") VALUES (?)",
+		entity.Column1)
+
+	if err != nil {
+		return nil, err
+	}
+	id, err := result.LastInsertId()
+	entity.ID = int(id)
+	return entity, nil
+}
+
+
+
+func NewSampleRepository(db *sql.DB) SampleRepository {
+	return &sampleRepositoryImpl{
+		db:        db,
+		tableName: "sample",
+	}
+}

@@ -1,0 +1,41 @@
+package usecase
+
+import (
+	"__module_name__/internal/converter"
+	"__module_name__/internal/model/dto"
+	"__module_name__/internal/repository"
+)
+
+type sampleUseCaseImpl struct {
+	sampleRepository repository.SampleRepository
+}
+
+func (a sampleUseCaseImpl) Create(request *dto.SampleRequest) (*dto.SampleResponse, error) {
+	tx, err := a.sampleRepository.BeginTransaction()
+	if err != nil {
+		return nil, dto.NewError(500, err.Error())
+	}
+
+
+	entity := converter.CreateSampleRequestToEntity(request)
+	entity, err = a.sampleRepository.Create(tx, entity)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	return converter.EntityToSampleResponse(entity), nil
+}
+
+func (a sampleUseCaseImpl) GetById(id int) (*dto.SampleResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewSampleUseCase(sampleRepository repository.SampleRepository) SampleUseCase {
+	return &sampleUseCaseImpl{sampleRepository: sampleRepository}
+}

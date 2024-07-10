@@ -1,0 +1,37 @@
+package config
+
+import (
+	"errors"
+	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
+	"__module_name__/internal/model/dto"
+)
+
+func NewFiber() *fiber.App {
+	var app = fiber.New(fiber.Config{
+		AppName:      viper.GetString("app.name"),
+		ErrorHandler: NewErrorHandler(),
+	})
+
+	return app
+}
+
+func NewErrorHandler() fiber.ErrorHandler {
+	return func(ctx *fiber.Ctx, err error) error {
+		var errorResponse *dto.ErrorResponse
+		if errors.As(err, &errorResponse) {
+			return ctx.Status(errorResponse.ResponseCode).JSON(errorResponse)
+		}
+		code := fiber.StatusInternalServerError
+		var e *fiber.Error
+		if errors.As(err, &e) {
+			code = e.Code
+		}
+
+		return ctx.Status(code).JSON(&dto.ErrorResponse{
+			ResponseCode:    code,
+			ResponseMessage: err.Error(),
+		})
+	}
+}
+

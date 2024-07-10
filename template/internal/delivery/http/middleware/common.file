@@ -1,0 +1,62 @@
+package middleware
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/spf13/viper"
+	fiberLog "github.com/gofiber/fiber/v2/middleware/logger"
+	"__module_name__/internal/constants"
+	"__module_name__/internal/logger"
+	"__module_name__/internal/util"
+	"log"
+	"os"
+	"time"
+)
+
+func CommonMiddleware(ctx *fiber.Ctx) error {
+	ctx.Context().SetUserValue(constants.ContextSessionID, util.UniqID())
+	//set data via context
+
+	currentDate := time.Now().Format("2006-01-02")
+	logFile, err := os.OpenFile(fmt.Sprintf("logs/%s_%s.log",viper.GetString("log.prefixFileName"), currentDate), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+
+	if err != nil {
+		panic(fmt.Sprintf("failed to open log file: %v", err))
+	}
+
+	defer func(logFile *os.File) {
+		err := logFile.Close()
+		if err != nil {
+			panic("Failed to close log file")
+		}
+	}(logFile)
+
+	// Set log output to the file
+	log.SetOutput(logFile)
+	log.SetFlags(0)
+
+	return ctx.Next()
+}
+
+func RequestLogger(ctx *fiber.Ctx) error {
+	reqContent := ""
+	reqBuffer := &bytes.Buffer{}
+	if errBuffer := json.Compact(reqBuffer, ctx.Body()); errBuffer == nil {
+		reqContent = reqBuffer.String()
+	}
+	logger.Log("RequestURL", fmt.Sprintf("%s%s", ctx.BaseURL(), ctx.Path()), ctx.Context())
+	logger.Log("RequestHeader", ctx.GetReqHeaders(), ctx.Context())
+	logger.Log("RequestBody", reqContent, ctx.Context())
+	return ctx.Next()
+}
+
+func ResponseLogger() fiber.Handler {
+	return fiberLog.New(fiberLog.Config{
+		Format: "-",
+		Done: func(c *fiber.Ctx, logString []byte) {
+			logger.Log("ResponseBody", string(c.Response().Body()), c.Context())
+		},
+	})
+}

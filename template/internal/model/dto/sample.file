@@ -1,0 +1,11 @@
+package dto
+
+type SampleRequest struct {
+	ID      int `json:"id" validate:"required"`
+	Column1 string `json:"column1" validate:"required"`
+}
+
+type SampleResponse struct {
+	ID      int `json:"id"`
+	Column1 string `json:"column1"`
+}

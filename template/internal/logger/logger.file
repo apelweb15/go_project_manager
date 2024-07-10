@@ -1,0 +1,63 @@
+package logger
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"__module_name__/internal/util"
+	"log"
+	"reflect"
+	"time"
+)
+
+func Log(message interface{}, data interface{}, context ...context.Context) {
+
+	// Customize the log format as per your requirement
+	currentTime := time.Now()
+	logMessage := fmt.Sprintf("[%s] [%v] %s", currentTime.Format("2006-01-02 15:04:05"), message, parseLogData(data))
+	if len(context) > 0 {
+		sessionId := util.GetContextSessionID(context[0])
+		logMessage = fmt.Sprintf("[%s] [%s] [%v] %s", currentTime.Format("2006-01-02 15:04:05"), sessionId, message, parseLogData(data))
+	}
+	log.Println(logMessage)
+}
+
+func LogSession(message interface{}, data interface{}, sessionId string) {
+
+	// Customize the log format as per your requirement
+	currentTime := time.Now()
+	logMessage := fmt.Sprintf("[%s] [%v] %s", currentTime.Format("2006-01-02 15:04:05"), message, parseLogData(data))
+	logMessage = fmt.Sprintf("[%s] [%s] [%v] %s", currentTime.Format("2006-01-02 15:04:05"), sessionId, message, parseLogData(data))
+	log.Println(logMessage)
+}
+
+func parseLogData(data interface{}) string {
+
+	if reflect.ValueOf(data).Kind() == reflect.Struct {
+		jsonData, errJson := json.Marshal(data)
+		if errJson == nil {
+			return string(jsonData)
+		}
+	} else if reflect.ValueOf(data).Kind() == reflect.Struct {
+		return data.(string)
+	} else if reflect.ValueOf(data).Kind() == reflect.Int || reflect.ValueOf(data).Kind() == reflect.Int8 || reflect.ValueOf(data).Kind() == reflect.Int16 || reflect.ValueOf(data).Kind() == reflect.Float32 || reflect.ValueOf(data).Kind() == reflect.Float64 {
+		return fmt.Sprintf("%d", data)
+	} else if reflect.ValueOf(data).Kind() == reflect.Ptr {
+		if err, ok := data.(error); ok {
+			return err.Error()
+		}
+		s := reflect.ValueOf(data).Elem()
+		jsonData, errJson := json.Marshal(s.Addr().Interface())
+		if errJson == nil {
+			return string(jsonData)
+		}
+	} else if reflect.ValueOf(data).Kind() == reflect.Map {
+		jsonData, errJson := json.Marshal(data)
+		if errJson == nil {
+			return string(jsonData)
+		}
+	} else if reflect.ValueOf(data).Kind() == reflect.String {
+		return data.(string)
+	}
+	return fmt.Sprintf("%v", data)
+}

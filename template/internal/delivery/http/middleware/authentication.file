@@ -1,0 +1,8 @@
+package middleware
+
+import "github.com/gofiber/fiber/v2"
+
+func AuthMiddleware(ctx *fiber.Ctx) error {
+	//validate here
+	return ctx.Next()
+}

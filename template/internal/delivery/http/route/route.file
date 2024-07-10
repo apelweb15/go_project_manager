@@ -1,0 +1,23 @@
+package route
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"__module_name__/internal/delivery/http/handler"
+	"__module_name__/internal/delivery/http/middleware"
+)
+
+type RouterConfig struct {
+	App         *fiber.App
+	SampleHandler *handler.SampleHandler
+}
+
+func (c *RouterConfig) Setup() {
+	//"github.com/gofiber/fiber/v2/middleware/recover"
+	//c.App.Use(recover.New())
+	c.App.Use(middleware.CommonMiddleware)
+	c.App.Use(middleware.RequestLogger)
+	c.App.Use(middleware.ResponseLogger())
+
+	c.App.Use(middleware.AuthMiddleware)
+	c.App.Post("create", c.SampleHandler.Create)
+}

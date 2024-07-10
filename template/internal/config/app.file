@@ -1,0 +1,36 @@
+package config
+
+import (
+	"database/sql"
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+	"__module_name__/internal/delivery/http/handler"
+	"__module_name__/internal/delivery/http/route"
+	"__module_name__/internal/repository"
+	"__module_name__/internal/usecase"
+)
+
+type BootstrapConfig struct {
+	DB       *sql.DB
+	App      *fiber.App
+	Validate *validator.Validate
+}
+
+func Bootstrap(config *BootstrapConfig) {
+	//initiate sample repository
+	sampleRepository := repository.NewSampleRepository(config.DB)
+
+	//initiate sample useCase
+	sampleUseCase := usecase.NewSampleUseCase(sampleRepository)
+
+	//initiate fiber sample handler
+	sampleHandler := handler.NewSampleHandler(sampleUseCase, config.Validate)
+
+	//create route & setup
+	routeConfig := route.RouterConfig{
+		App:         config.App,
+		SampleHandler: sampleHandler,
+	}
+	routeConfig.Setup()
+
+}

@@ -1,0 +1,20 @@
+package converter
+
+import (
+	"__module_name__/internal/entity"
+	"__module_name__/internal/model/dto"
+)
+
+func CreateSampleRequestToEntity(request *dto.SampleRequest) *entity.Entity {
+	return &entity.Entity{
+		ID: request.ID,
+		Column1: request.Column1,
+	}
+}
+
+func EntityToSampleResponse(request *entity.Entity) *dto.SampleResponse {
+	return &dto.SampleResponse{
+		ID: request.ID,
+		Column1: request.Column1,
+	}
+}

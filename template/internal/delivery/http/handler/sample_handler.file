@@ -1,0 +1,54 @@
+package handler
+
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
+	"__module_name__/internal/logger"
+	"__module_name__/internal/model/dto"
+	"__module_name__/internal/usecase"
+)
+
+type SampleHandler struct {
+	sampleUseCase usecase.SampleUseCase
+	validator   *validator.Validate
+}
+
+func NewSampleHandler(useCase usecase.SampleUseCase, validator *validator.Validate) *SampleHandler {
+	return &SampleHandler{
+		sampleUseCase: useCase,
+		validator:   validator,
+	}
+}
+
+func (a SampleHandler) Create(c *fiber.Ctx) error {
+	ctx := c.Context()
+
+	//region marshal request
+	request := &dto.SampleRequest{}
+	if err := c.BodyParser(request); err != nil {
+		logger.Log("Error marshaling request", err, ctx)
+		return dto.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	//endregion marshal request
+
+	//region validate incoming request
+	if err := a.validator.Struct(request); err != nil {
+		return dto.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	//endregion validate incoming request
+
+	//region create sampleUseCase
+	response, err := a.sampleUseCase.Create(request)
+	if err != nil {
+		logger.Log("Error creating sampleUseCase", err, ctx)
+		return err
+	}
+	//endregion create sampleUseCase
+
+	return c.JSON(dto.Response[*dto.SampleResponse]{
+		ResponseCode:    fiber.StatusOK,
+		ResponseMessage: "Success",
+		Data:            response,
+	})
+}
+
