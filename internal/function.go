@@ -1,17 +1,19 @@
 package internal
 
 import (
+	"embed"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 )
 
-var templateDir = "./template/"
+var templateDir = "template/"
 
 type Project struct {
 	ModuleName string
 	Directory  string
+	Template   embed.FS
 }
 
 func (p Project) Start() error {
@@ -97,7 +99,7 @@ func (p Project) InitializeProject() error {
 
 	templateMod := templateDir + "go_mod.file"
 	destinationMode := fmt.Sprintf("%s/go.mod", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -110,7 +112,6 @@ func (p Project) InitializeProject() error {
 		return err
 	}
 
-	fmt.Printf("File %s berhasil disalin ke %s\n", templateMod, destinationMode)
 	return nil
 }
 
@@ -123,7 +124,7 @@ func (p Project) CreateEntity() error {
 
 	templateMod := templateDir + "internal/entity/entity.file"
 	destinationMode := fmt.Sprintf("%s/internal/entity/entity.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -149,7 +150,7 @@ func (p Project) CreateRepository() error {
 
 	templateMod := templateDir + "internal/repository/sample_repository.file"
 	destinationMode := fmt.Sprintf("%s/internal/repository/sample_repository.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -164,7 +165,7 @@ func (p Project) CreateRepository() error {
 
 	templateModImpl := templateDir + "internal/repository/sample_repository_impl.file"
 	destinationModeImpl := fmt.Sprintf("%s/internal/repository/sample_repository_impl.go", p.Directory)
-	srcFileImpl, destFileImpl, err := copyFile(templateModImpl, destinationModeImpl)
+	srcFileImpl, destFileImpl, err := p.copyFile(templateModImpl, destinationModeImpl)
 	defer srcFileImpl.Close()
 	defer destFileImpl.Close()
 	if err != nil {
@@ -189,7 +190,7 @@ func (p Project) CreateConstant() error {
 
 	templateMod := templateDir + "internal/constants/constants.file"
 	destinationMode := fmt.Sprintf("%s/internal/constants/constants.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -215,7 +216,7 @@ func (p Project) CreateUtil() error {
 
 	templateMod := templateDir + "internal/util/common.file"
 	destinationMode := fmt.Sprintf("%s/internal/util/common.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -239,7 +240,7 @@ func (p Project) CreateLogger() error {
 
 	templateMod := templateDir + "internal/logger/logger.file"
 	destinationMode := fmt.Sprintf("%s/internal/logger/logger.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -267,7 +268,7 @@ func (p Project) CreateModel() error {
 
 	templateMod := templateDir + "internal/model/dto/common.file"
 	destinationMode := fmt.Sprintf("%s/internal/model/dto/common.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -283,7 +284,7 @@ func (p Project) CreateModel() error {
 
 	templateModSample := templateDir + "internal/model/dto/sample.file"
 	destinationModeSample := fmt.Sprintf("%s/internal/model/dto/sample.go", p.Directory)
-	srcFileSample, destFileSample, err := copyFile(templateModSample, destinationModeSample)
+	srcFileSample, destFileSample, err := p.copyFile(templateModSample, destinationModeSample)
 	defer srcFileSample.Close()
 	defer destFileSample.Close()
 	if err != nil {
@@ -309,7 +310,7 @@ func (p Project) CreateConverter() error {
 
 	templateMod := templateDir + "internal/converter/entity.file"
 	destinationMode := fmt.Sprintf("%s/internal/converter/entity.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -333,7 +334,7 @@ func (p Project) CreateUseCase() error {
 
 	templateMod := templateDir + "internal/usecase/sample_usecase.file"
 	destinationMode := fmt.Sprintf("%s/internal/usecase/sample_usecase.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -348,7 +349,7 @@ func (p Project) CreateUseCase() error {
 
 	templateModImpl := templateDir + "internal/usecase/sample_usecase_impl.file"
 	destinationModeImpl := fmt.Sprintf("%s/internal/usecase/sample_usecase_impl.go", p.Directory)
-	srcFileImpl, destFileImpl, err := copyFile(templateModImpl, destinationModeImpl)
+	srcFileImpl, destFileImpl, err := p.copyFile(templateModImpl, destinationModeImpl)
 	defer srcFileImpl.Close()
 	defer destFileImpl.Close()
 	if err != nil {
@@ -393,7 +394,7 @@ func (p Project) CreateDelivery() error {
 
 	templateMod := templateDir + "internal/delivery/http/handler/sample_handler.file"
 	destinationMode := fmt.Sprintf("%s/internal/delivery/http/handler/sample_handler.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -408,7 +409,7 @@ func (p Project) CreateDelivery() error {
 
 	templateModMiddleware := templateDir + "internal/delivery/http/middleware/authentication.file"
 	destinationModeMiddleware := fmt.Sprintf("%s/internal/delivery/http/middleware/authentication.go", p.Directory)
-	srcFileMiddleware, destFileMiddleware, err := copyFile(templateModMiddleware, destinationModeMiddleware)
+	srcFileMiddleware, destFileMiddleware, err := p.copyFile(templateModMiddleware, destinationModeMiddleware)
 	defer srcFileMiddleware.Close()
 	defer destFileMiddleware.Close()
 	if err != nil {
@@ -424,7 +425,7 @@ func (p Project) CreateDelivery() error {
 
 	templateModMiddleware2 := templateDir + "internal/delivery/http/middleware/common.file"
 	destinationModeMiddleware2 := fmt.Sprintf("%s/internal/delivery/http/middleware/common.go", p.Directory)
-	srcFileMiddleware2, destFileMiddleware2, err := copyFile(templateModMiddleware2, destinationModeMiddleware2)
+	srcFileMiddleware2, destFileMiddleware2, err := p.copyFile(templateModMiddleware2, destinationModeMiddleware2)
 	defer srcFileMiddleware2.Close()
 	defer destFileMiddleware2.Close()
 	if err != nil {
@@ -439,7 +440,7 @@ func (p Project) CreateDelivery() error {
 
 	templateModRoute := templateDir + "internal/delivery/http/route/route.file"
 	destinationModeRoute := fmt.Sprintf("%s/internal/delivery/http/route/route.go", p.Directory)
-	srcFileRoute, destFileRoute, err := copyFile(templateModRoute, destinationModeRoute)
+	srcFileRoute, destFileRoute, err := p.copyFile(templateModRoute, destinationModeRoute)
 	defer srcFileRoute.Close()
 	defer destFileRoute.Close()
 	if err != nil {
@@ -463,7 +464,7 @@ func (p Project) CreateConfig() error {
 
 	templateMod := templateDir + "internal/config/app.file"
 	destinationMode := fmt.Sprintf("%s/internal/config/app.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -478,7 +479,7 @@ func (p Project) CreateConfig() error {
 
 	templateModDb := templateDir + "internal/config/db.file"
 	destinationModeDb := fmt.Sprintf("%s/internal/config/db.go", p.Directory)
-	srcFileDb, destFileDb, err := copyFile(templateModDb, destinationModeDb)
+	srcFileDb, destFileDb, err := p.copyFile(templateModDb, destinationModeDb)
 	defer srcFileDb.Close()
 	defer destFileDb.Close()
 	if err != nil {
@@ -494,7 +495,7 @@ func (p Project) CreateConfig() error {
 
 	templateModFiber := templateDir + "internal/config/fiber.file"
 	destinationModeFiber := fmt.Sprintf("%s/internal/config/fiber.go", p.Directory)
-	srcFileFiber, destFileFiber, err := copyFile(templateModFiber, destinationModeFiber)
+	srcFileFiber, destFileFiber, err := p.copyFile(templateModFiber, destinationModeFiber)
 	defer srcFileFiber.Close()
 	defer destFileFiber.Close()
 	if err != nil {
@@ -509,7 +510,7 @@ func (p Project) CreateConfig() error {
 
 	templateModValidator := templateDir + "internal/config/validator.file"
 	destinationModeValidator := fmt.Sprintf("%s/internal/config/validator.go", p.Directory)
-	srcFileValidator, destFileValidator, err := copyFile(templateModValidator, destinationModeValidator)
+	srcFileValidator, destFileValidator, err := p.copyFile(templateModValidator, destinationModeValidator)
 	defer srcFileValidator.Close()
 	defer destFileValidator.Close()
 	if err != nil {
@@ -525,7 +526,7 @@ func (p Project) CreateConfig() error {
 
 	templateModViper := templateDir + "internal/config/viper.file"
 	destinationModeViper := fmt.Sprintf("%s/internal/config/viper.go", p.Directory)
-	srcFileViper, destFileViper, err := copyFile(templateModViper, destinationModeViper)
+	srcFileViper, destFileViper, err := p.copyFile(templateModViper, destinationModeViper)
 	defer srcFileViper.Close()
 	defer destFileViper.Close()
 	if err != nil {
@@ -555,7 +556,7 @@ func (p Project) CreateEntryPoint() error {
 
 	templateMod := templateDir + "cmd/rest/main.file"
 	destinationMode := fmt.Sprintf("%s/cmd/rest/main.go", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -573,7 +574,7 @@ func (p Project) CreateEntryPoint() error {
 func (p Project) CreateConfigFile() error {
 	templateMod := templateDir + "config.json"
 	destinationMode := fmt.Sprintf("%s/config.json", p.Directory)
-	srcFile, destFile, err := copyFile(templateMod, destinationMode)
+	srcFile, destFile, err := p.copyFile(templateMod, destinationMode)
 	defer srcFile.Close()
 	defer destFile.Close()
 	if err != nil {
@@ -589,9 +590,25 @@ func (p Project) CreateConfigFile() error {
 	return nil
 }
 
-func copyFile(source, destination string) (*os.File, *os.File, error) {
+func (p Project) copyFile(source, destination string) (*os.File, *os.File, error) {
 	// Membuka file asli
-	srcFile, err := os.Open(source)
+	data, err := p.Template.ReadFile(source)
+	if err != nil {
+		panic(err)
+	}
+	// Membuat file sementara di filesystem
+	tmpfile, err := os.CreateTemp("", "example")
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	// Menulis data ke file sementara
+	if _, err := tmpfile.Write(data); err != nil {
+		panic(err)
+	}
+
+	srcFile, err := os.Open(tmpfile.Name())
 	if err != nil {
 		return nil, nil, err
 	}
