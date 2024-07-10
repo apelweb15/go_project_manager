@@ -12,7 +12,7 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	//Meminta input nama
-	fmt.Print("Module Name: ")
+	fmt.Print("Module/Project Name: ")
 	moduleName, _ := reader.ReadString('\n')
 	moduleName = strings.TrimSpace(moduleName)
 
